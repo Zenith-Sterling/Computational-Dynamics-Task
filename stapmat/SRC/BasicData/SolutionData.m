@@ -55,6 +55,7 @@ classdef SolutionData
         E;          % double array, Young's Modulus
         nu;         % double array, possion ratio
         AREA;       % double array, cross-sectional constants
+        rho;
         MATP;       % int, MATP(NUME), types of elements
         
         % Solve data
@@ -70,6 +71,8 @@ classdef SolutionData
         DIS;      % double, DIS(NEQ, NLCASE), Displacement of nodes
         STRAIN;   % double, STRAIN(NEQ, NLCASE), Strain
         STRESS;   % double, STRESS(NEQ, NLCASE), Stress
+        Mass1;
+        Mass2;
         
     end
 end
