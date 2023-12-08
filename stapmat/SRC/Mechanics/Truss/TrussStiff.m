@@ -44,6 +44,8 @@ end
 % Assemble structure stiffness matrix
 Assemble();
 
+AssembleMass();
+
 
 
 
@@ -95,6 +97,51 @@ for N = 1:NUME
     
 %   SRC/Mechanics/ADDBAN.m
     ADDBAN(S, LM(:, N));
+    
+end
+
+% The third time stamp
+cdata.TIM(3, :) = clock;
+
+end
+
+function AssembleMass()
+global sdata;
+global cdata;
+M1 = zeros(6, 6, 'double');
+M2 = zeros(6, 6, 'double');
+sdata.Mass1 = zeros(sdata.NWK, 1, 'double');
+sdata.Mass2 = zeros(sdata.NWK, 1, 'double');
+
+NUME = sdata.NUME; MATP = sdata.MATP; XYZ = sdata.XYZ; 
+E = sdata.E; AREA = sdata.AREA; rho=sdata.rho;LM = sdata.LM;
+for N = 1:NUME
+    MTYPE = MATP(N);
+    
+%   compute the length of truss element
+    DX = XYZ(1, N) - XYZ(4, N);
+    DY = XYZ(2, N) - XYZ(5, N);
+    DZ = XYZ(3, N) - XYZ(6, N);
+    XL2 = DX*DX + DY*DY + DZ*DZ;
+    XL = sqrt(XL2);
+
+    W=rho(MTYPE)*AREA(MTYPE)*XL;
+    
+    M1=W/2*[2/3 0 0 1/3 0 0;
+       0 2/3 0 0 1/3 0;
+       0 0 2/3 0 0 1/3;
+       1/3 0 0 2/3 0 0;
+       0 1/3 0 0 2/3 0;
+       0 0 1/3 0 0 2/3];
+    M2=W/2*[1 0 0 0 0 0;
+       0 1 0 0 0 0;
+       0 0 1 0 0 0;
+       0 0 0 1 0 0;
+       0 0 0 0 1 0;
+       0 0 0 0 0 1];
+    
+%   SRC/Mechanics/ADDBAN.m
+    AddM(M1,M2, LM(:, N));
     
 end
 
