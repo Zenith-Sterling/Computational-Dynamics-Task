@@ -37,7 +37,9 @@ sdata.STRESS = zeros(NEQ, NLCASE, 'double');
 % MODEX = 1, LDLTFactor() - ColSol()     
 % MODEX = 2, Stiff2Sparse() - sdata.SPSTIFF \ Sdata.R(:, L)
 if (MODEX == 1) LDLTFactor();
-else SPSTIFF = Stiff2Sparse(); end
+else SPSTIFF = Stiff2Sparse();
+    
+end
 
 cdata.TIM(4,:) = clock;
 
@@ -46,6 +48,7 @@ for L = 1:NLCASE
 
 %   Solve the equilibrium equations to calculate the displacements
     if (MODEX == 1) ColSol(L);
+    elseif (MODEX == 2) Time_Integration();
     else sdata.DIS(:,L) = SPSTIFF \ sdata.R(:,L); end
     
 %   Print displacements
