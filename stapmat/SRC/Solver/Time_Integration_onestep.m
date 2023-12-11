@@ -1,5 +1,5 @@
 function [a_new,a_new_dot,a_new_dot2] = Time_Integration_onestep(M,C,K,Q,a,a_dot,a_dot2)
-%TIME_INTEGRATION 基于广义alpha法的时间积分方法
+%TIME_INTEGRATION 基于广义alpha法的时间积分方法(一步)
 
 %% 参数设置
 % 广义alpha值
