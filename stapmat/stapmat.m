@@ -20,7 +20,7 @@ cdata = ControlData;
 sdata = SolutionData;
 
 % Read InPut file
-fname = 'mass.in';              % Specify the file name
+fname = 'stap90（a）.in';              % Specify the file name
 ReadFile(fname);
 
 % Write basic data of program 
