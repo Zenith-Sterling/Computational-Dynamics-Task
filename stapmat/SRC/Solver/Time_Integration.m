@@ -3,8 +3,8 @@ function [a,a_dot,a_dot2] = Time_Integration(N0,dt0,M,C,K,Q,a0,a0_dot,a0_dot2)
 
 %% 参数设置
 % 广义alpha值
-alpha_f = 2.0;
-alpha_m = 0.5;
+alpha_f = 0.0;
+alpha_m = 0.0;
 beta = 0.25;
 gama = 0.5;
 % 最大迭代步数

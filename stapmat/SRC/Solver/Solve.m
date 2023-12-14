@@ -33,13 +33,19 @@ sdata.DIS = zeros(NEQ, NLCASE, 'double');
 sdata.STRAIN = zeros(NEQ, NLCASE, 'double');
 sdata.STRESS = zeros(NEQ, NLCASE, 'double');
 
+
 % The pre-process of Solution
 % MODEX = 1, LDLTFactor() - ColSol()     
 % MODEX = 2, Stiff2Sparse() - sdata.SPSTIFF \ Sdata.R(:, L)
 if (MODEX == 1) LDLTFactor();
 else SPSTIFF = Stiff2Sparse();
-    
+    SPMASS = Mass2Sparse();
 end
+
+C = 0.5*SPMASS+0.5*SPSTIFF;
+% O = zeros(NEQ,NEQ);
+N = 1000;
+dt = 0.5;
 
 cdata.TIM(4,:) = clock;
 
@@ -48,7 +54,8 @@ for L = 1:NLCASE
 
 %   Solve the equilibrium equations to calculate the displacements
     if (MODEX == 1) ColSol(L);
-    elseif (MODEX == 2) Time_Integration();
+    elseif (MODEX == 2) [dis,~,~] = Time_Integration(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1),zeros(NEQ,1));
+        sdata.DIS(:,L) = dis(:,N+1);
     else sdata.DIS(:,L) = SPSTIFF \ sdata.R(:,L); end
     
 %   Print displacements
@@ -92,6 +99,35 @@ for N = 1:NEQ
 end
 
 SPSTIFF = sparse(IIndex, JIndex, STIFF, NEQ, NEQ);
+end
+
+% Convert the mass vector to a sparse Mass matrix
+function SPMASS = Mass2Sparse()
+
+global sdata;
+A = sdata.Mass1; MAXA = sdata.MAXA; NEQ = sdata.NEQ; NWK = sdata.NWK;
+IIndex = zeros(NWK*2-NEQ, 1);
+JIndex = IIndex;
+MASS = IIndex;
+
+NUM = 1;
+NUMC = 0;
+for N = 1:NEQ
+    KU = MAXA(N + 1) - MAXA(N);
+    for L = 1:KU
+        IIndex(NUM) = N;
+        JIndex(NUM) = N - L + 1;
+        MASS(NUM) = A(NUM);
+        NUM = NUM + 1;
+        if (L == 1) NUMC = NUMC + 1;continue; end
+        SYMN = NUM-1 - NUMC + NWK;
+        IIndex(SYMN) = N - L + 1;
+        JIndex(SYMN) = N;
+        MASS(SYMN) = A(NUM-1);
+    end
+end
+
+SPMASS = sparse(IIndex, JIndex, MASS, NEQ, NEQ);
 end
 
 % Print Displacements
