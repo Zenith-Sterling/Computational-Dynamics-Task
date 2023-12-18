@@ -42,7 +42,7 @@ else SPSTIFF = Stiff2Sparse();
     SPMASS = Mass2Sparse();
 end
 
-C = 0.5*SPMASS+0.5*SPSTIFF;
+% C = 0.5*SPMASS+0.5*SPSTIFF;
 % O = zeros(NEQ,NEQ);
 N = 1000;
 dt = 0.5;

@@ -56,11 +56,13 @@ sdata.NUMMAT = cdata.NPAR(3);
 NUMMAT = cdata.NPAR(3);
 sdata.E = zeros(NUMMAT, 1, 'double');
 sdata.nu = zeros(NUMMAT, 1, 'double');
+sdata.rho = zeros(NUMMAT, 1, 'double');
 for I = 1:cdata.NPAR(3)
     tmp = str2num(fgetl(IIN));
     N = round(tmp(1));
     sdata.E(N) = tmp(2);
     sdata.nu(N) = tmp(3);
+    sdata.rho(N)=tmp(4);
     fprintf(IOUT, '%5d    %12.5e  %14.6e\n', N, tmp(2), tmp(3));
 end
 

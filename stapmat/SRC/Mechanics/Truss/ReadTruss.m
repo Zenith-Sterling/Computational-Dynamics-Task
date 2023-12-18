@@ -124,8 +124,8 @@ end
 sdata.XYZ = XYZ; sdata.MATP = MATP; sdata.LM = LM;
 
 % Clear the memory of X, Y, Z
-sdata.X = double(0);
-sdata.Y = double(0);
-sdata.Z = double(0);
+% sdata.X = double(0);
+% sdata.Y = double(0);
+% sdata.Z = double(0);
 
 end

@@ -20,7 +20,7 @@ cdata = ControlData;
 sdata = SolutionData;
 
 % Read InPut file
-fname = 'stap90（a）.in';              % Specify the file name
+fname = 'plane4Q2.in';              % Specify the file name
 ReadFile(fname);
 
 % Write basic data of program 
@@ -35,6 +35,8 @@ Solve();
 % Finalize
 Finalize();
 
+% dealoutfile();
+
 % ----------------------- Functions -----------------------------------
 
 % Functions
@@ -44,6 +46,7 @@ clear;
 close all;
 clc;
 
+addpath .\SRC
 addpath .\SRC\Initiation
 addpath .\SRC\BasicData
 addpath .\SRC\Mechanics

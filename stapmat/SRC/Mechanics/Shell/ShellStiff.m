@@ -43,6 +43,7 @@ end
 % Assemble structure stiffness matrix
 Assemble();
 
+AssembleMass();
 
 end
 
@@ -115,6 +116,27 @@ cdata.TIM(3, :) = clock;
 
 end
 
+
+function AssembleMass()
+global sdata;
+global cdata;
+M1 = zeros(12, 12, 'double');
+M2 = zeros(12, 12, 'double');
+sdata.Mass1 = zeros(sdata.NWK, 1, 'double');
+sdata.Mass2 = zeros(sdata.NWK, 1, 'double');
+
+NUME = sdata.NUME; MATP = sdata.MATP; XYZ = sdata.XYZ; 
+thick = sdata.thick; rho=sdata.rho;LM = sdata.LM;
+    
+%   SRC/Mechanics/ADDBAN.m
+    AddM(M1,M2, LM(:, N));
+    
+end
+
+% The third time stamp
+cdata.TIM(3, :) = clock;
+
+end
 
 
 
