@@ -40,7 +40,7 @@ for N = 1:NUME
             u(i) = 0;
         end
     end
-    u
+   
     d = [u(1);u(2);u(3);u(4);u(5);u(6);u(7);u(8);u(9);u(10);u(11);u(12)];
     
     B1_plane=0;
@@ -57,23 +57,26 @@ for N = 1:NUME
     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
     for i = 1:2
         for j = 1:2        %循环遍历所有高斯积分点
-            N_st = 0.25*[t(j)-1 1-t(j) 1+t(j) -1-t(j);
-                s(i)-1 -1-s(i) 1+s(i) 1-s(i)];         %形函数的导数
+                N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+                        s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
             J = N_st*P;              %计算雅可比矩阵J
             detJ = det(J);           % 雅可比行列式
             N_xy = J\N_st;           %计算局部到全局坐标的映射
-            B_plane = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
-                0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
-                N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
-            B_shear = [N_xy(1,1) 0  -thick/2 N_xy(1,2) 0 -thick/2 N_xy(1,3) 0 -thick/2 N_xy(1,4) 0 -thick/2;
-                        0 N_xy(2,1) -thick/2 0 N_xy(2,2) -thick/2 0 N_xy(2,3) -thick/2 0 N_xy(2,4) -thick/2]
-            B1_plane=0.25*B_plane+B1_plane;
-            B1_shear=0.25*B_shear+B1_shear;
+            B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
+                       0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
+                       0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
+            N1 = 0.25*(1+s(i))*(1+t(j));
+            N2 = 0.25*(1-s(i))*(1+t(j));
+            N3 = 0.25*(1-s(i))*(1-t(j));
+            N4 = 0.25*(1+s(i))*(1-t(j));
+            B_shear = [N_xy(2,1) -N1 0  N_xy(2,2) -N2 0  N_xy(2,3) -N3 0  N_xy(2,4) -N4 0;
+                       N_xy(1,1) 0   N1 N_xy(1,2) 0   N2 N_xy(1,3) 0   N3 N_xy(1,4) 0   N4];
+            B1_plane=B_plane+B1_plane;
+            B1_shear=B_shear+B1_shear;
         end
     end
-    B1_plane_extended = zeros(3, 12);
-    B1_plane_extended(:, 1:8) = B1_plane;
-    eps_plane = B1_plane_extended*d;
+    z=thick/2; %上表面
+    eps_plane = z*B1_plane*d; 
     eps_shear = B1_shear*d;
     sigma_plane = D_plane*eps_plane; %σx、σy、σxy
     sigma_shear = D_shear*eps_shear; %τxz、τyz
