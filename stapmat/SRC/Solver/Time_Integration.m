@@ -1,4 +1,4 @@
-function [a,a_dot,a_dot2] = Time_Integration(N0,dt0,M,C,K,Q,a0,a0_dot,a0_dot2)
+function [a,a_dot,a_dot2] = Time_Integration(N0,dt0,M,C,K,Q,a0,a0_dot)
 %TIME_INTEGRATION 基于广义alpha法的时间积分方法
 
 %% 参数设置
@@ -18,7 +18,7 @@ a_dot2 = zeros(n,N);
 % 赋初始值
 a(:,1) = a0;
 a_dot(:,1) = a0_dot;
-a_dot2(:,1) = a0_dot2;
+a_dot2(:,1) = M\(Q-C*a0_dot-K*a0);
 
 
 %% 中间参数
