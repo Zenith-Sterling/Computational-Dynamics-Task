@@ -54,7 +54,7 @@ for L = 1:NLCASE
 
 %   Solve the equilibrium equations to calculate the displacements
     if (MODEX == 1) ColSol(L);
-    elseif (MODEX == 2) [dis,~,~] = Time_Integration(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1),zeros(NEQ,1));
+    elseif (MODEX == 2) [dis,~,~] = Time_Integration(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
         sdata.DIS(:,L) = dis(:,N+1);
     else sdata.DIS(:,L) = SPSTIFF \ sdata.R(:,L); end
     
