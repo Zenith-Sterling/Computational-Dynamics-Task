@@ -12,9 +12,9 @@ N = N0;
 % 时间步长
 dt = dt0; %计算到N0*dt0时刻，时间维度上N+1
 n = length(a0);
-a = zeros(n,N);
-a_dot = zeros(n,N);
-a_dot2 = zeros(n,N);
+a = zeros(n,N+1);
+a_dot = zeros(n,N+1);
+a_dot2 = zeros(n,N+1);
 % 赋初始值
 a(:,1) = a0;
 a_dot(:,1) = a0_dot;
