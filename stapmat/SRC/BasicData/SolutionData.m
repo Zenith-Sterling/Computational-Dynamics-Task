@@ -56,6 +56,7 @@ classdef SolutionData
         nu;         % double array, possion ratio
         AREA;       % double array, cross-sectional constants
         rho;
+        thick;
         MATP;       % int, MATP(NUME), types of elements
         
         % Solve data
