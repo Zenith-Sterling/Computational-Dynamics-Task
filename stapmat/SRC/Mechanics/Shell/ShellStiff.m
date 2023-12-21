@@ -85,7 +85,7 @@ for N = 1:NUME
     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
     for i = 1:2
         for j = 1:2        %循环遍历所有高斯积分点
-                N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+            N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
                         s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
             J = N_st*P;              %计算雅可比矩阵J
             detJ = det(J);           % 雅可比行列式
@@ -109,6 +109,21 @@ for N = 1:NUME
         end
     end
     
+    % 转换矩阵
+    r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
+    r2 = [XYZ(10,N)-XYZ(1,N);XYZ(11,N)-XYZ(2,N);XYZ(12,N)-XYZ(3,N)]; %节点1到节点4
+    r3 = cross(r1,r2);
+    e1 = r1/norm(r1);
+    e2 = r2/norm(r2);
+    e3 = r3/norm(r3);
+    % 坐标系zxy
+    T = [e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1];e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1]];
+    T_total = blkdiag(T,T,T,T);
+
+    %全局坐标系的单元刚度阵
+    K = T_total'*K*T_total; % 转置应该是逆但不太确定
+%     K = T_total\K*T_total;
+
 %   SRC/Mechanics/ADDBAN.m
     ADDBAN(K, LM(:, N));
     

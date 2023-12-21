@@ -38,6 +38,7 @@ sdata.STRESS = zeros(NEQ, NLCASE, 'double');
 % MODEX = 1, LDLTFactor() - ColSol()     
 % MODEX = 2, Stiff2Sparse() - sdata.SPSTIFF \ Sdata.R(:, L)
 if (MODEX == 1) LDLTFactor();
+% if (MODEX == 1) SPSTIFF = Stiff2Sparse();
 else SPSTIFF = Stiff2Sparse();
     SPMASS = Mass2Sparse();
 end
