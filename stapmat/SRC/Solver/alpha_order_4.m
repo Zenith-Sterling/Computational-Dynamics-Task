@@ -1,11 +1,11 @@
-function [a,a_dot,a_dot2] = alpha_order_4(N0,dt0,M,C,K,Q,a0,a0_dot)
+function [a,a_dot1,a_dot2] = alpha_order_4(N0,dt0,M,C,K,Q,a0,a0_dot)
 %TIME_INTEGRATION 基于广义alpha法的时间积分方法
 
 %% 参数设置
 % 广义alpha值
-alpha_f = 0.0;
-alpha_1 = 0.0;
-alpha_2 = 0.0;
+alpha_f = 0.5;
+alpha_1 = 1.0;
+alpha_2 = 0.5;
 beta_1 = 0.25;
 beta_2 = 0.25;
 gama_1 = 0.5;
@@ -56,14 +56,6 @@ for k = 1:N
 
 end
 
-
-for k = 1:N
-    K_1 = c_k*K+c_0*M+c_1*C;
-    Q_1 = Q-alpha_f*K*a(:,k)+M*(c_0*a(:,k)+c_2*a_dot(:,k)+c_3*a_dot2(:,k))+C*(c_1*a(:,k)+c_4*a_dot(:,k)+c_5*a_dot2(:,k));
-    a(:,k+1) = K_1\Q_1;
-    a_dot2(:,k+1) = (a(:,k+1)-a(:,k))/(beta*dt*dt)-a_dot(:,k)/(beta*dt)-(0.5/beta-1)*a_dot2(:,k);
-    a_dot(:,k+1) = gama*(a(:,k+1)-a(:,k))/(beta*dt)+(1-gama/beta)*a_dot(:,k)+(1-0.5*gama/beta)*dt*a_dot2(:,k);
-end
 
 
 end

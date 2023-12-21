@@ -20,7 +20,7 @@ cdata = ControlData;
 sdata = SolutionData;
 
 % Read InPut file
-fname = 'plane4Q2.in';              % Specify the file name
+fname = 'stap90_2.in';              % Specify the file name
 ReadFile(fname);
 
 % Write basic data of program 
