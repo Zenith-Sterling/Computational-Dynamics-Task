@@ -108,21 +108,23 @@ for N = 1:NUME
             B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
                        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
                        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
-            N1 = 0.25*(1+s(i))*(1+t(j));
-            N2 = 0.25*(1-s(i))*(1+t(j));
-            N3 = 0.25*(1-s(i))*(1-t(j));
-            N4 = 0.25*(1+s(i))*(1-t(j));
-            B_shear = [N_xy(2,1) -N1 0  N_xy(2,2) -N2 0  N_xy(2,3) -N3 0  N_xy(2,4) -N4 0;
-                       N_xy(1,1) 0   N1 N_xy(1,2) 0   N2 N_xy(1,3) 0   N3 N_xy(1,4) 0   N4];
             % 计算 B_plane 的刚度贡献
             K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
-            % 计算 B_shear 的刚度贡献
-            K_shear = B_shear' * D_shear * B_shear*thick;  % 假设这是一个 12x12 矩阵
             % 组合两个刚度矩阵
-            K_combined = K_plane + K_shear;
-            K = K + K_combined*detJ;
+            K = K + K_plane*detJ;
         end
     end
+    % 单点高斯积分
+    N_st = 0.25*[1 -1 -1 1;
+        1 1 -1 -1];         %形函数的导数
+    J = N_st*P;              %计算雅可比矩阵J
+    detJ = det(J);           % 雅可比行列式
+    N_xy = J\N_st;           %计算局部到全局坐标的映射
+    B_shear = [N_xy(2,1) -0.25 0  N_xy(2,2) -0.25 0  N_xy(2,3) -0.25 0  N_xy(2,4) -0.25 0;
+                       N_xy(1,1) 0 0.25 N_xy(1,2) 0 0.25 N_xy(1,3) 0 0.25 N_xy(1,4) 0 0.25];
+    % 计算 B_shear 的刚度贡献
+    K_shear = 4 * B_shear' * D_shear * B_shear*thick;
+    K = K + K_shear*detJ;
 
     % 转换矩阵
     T = [e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1];e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1]];
