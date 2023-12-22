@@ -79,8 +79,23 @@ for N = 1:NUME
 
 %   compute the matrix B & K 
     K = zeros(12,12);
-    P = [XYZ(1, N) XYZ(2, N);XYZ(4, N) XYZ(5, N);
-        XYZ(7, N) XYZ(8, N);XYZ(10, N) XYZ(11, N)];   %四节点坐标
+
+    % 局部坐标系建立
+    r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
+    r2 = [XYZ(10,N)-XYZ(1,N);XYZ(11,N)-XYZ(2,N);XYZ(12,N)-XYZ(3,N)]; %节点1到节点4
+    r23 = [XYZ(7,N)-XYZ(4,N);XYZ(8,N)-XYZ(5,N);XYZ(9,N)-XYZ(6,N)]; %节点2到节点3
+    r3 = cross(r1,r2);
+    e1 = r1/norm(r1); %局部坐标系x轴
+    e3 = r3/norm(r3); %局部坐标系z轴
+    e2 = cross(e3,e1); %局部坐标系y轴
+    x2 = norm(r1); %局部坐标系下2点的x坐标
+    x3 = x2 + r23'*e1;
+    y3 = r23'*e2;
+    x4 = r2'*e1;
+    y4 = r2'*e2;
+
+    P = [0 0;x2 0;
+        x3 y3;x4 y4];   %四节点坐标
     s = [-sqrt(3)/3 sqrt(3)/3];
     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
     for i = 1:2
@@ -108,15 +123,8 @@ for N = 1:NUME
             K = K + K_combined*detJ;
         end
     end
-    
+
     % 转换矩阵
-    r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
-    r2 = [XYZ(10,N)-XYZ(1,N);XYZ(11,N)-XYZ(2,N);XYZ(12,N)-XYZ(3,N)]; %节点1到节点4
-    r3 = cross(r1,r2);
-    e1 = r1/norm(r1);
-    e2 = r2/norm(r2);
-    e3 = r3/norm(r3);
-    % 坐标系zxy
     T = [e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1];e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1]];
     T_total = blkdiag(T,T,T,T);
 
