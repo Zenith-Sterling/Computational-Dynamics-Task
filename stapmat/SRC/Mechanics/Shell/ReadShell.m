@@ -63,8 +63,8 @@ for I = 1:cdata.NPAR(3)
     N = round(tmp(1));
     sdata.E(N) = tmp(2);
     sdata.nu(N) = tmp(3);
-    sdata.thick(N) = tmp(4);
-    sdata.rho(N)=tmp(5);
+    sdata.thick(N) = tmp(5);
+    sdata.rho(N)=tmp(4);
     fprintf(IOUT, '%5d    %12.5e  %14.6e  %14.6e\n', N, tmp(2), tmp(3), tmp(4));
 end
 
@@ -119,15 +119,20 @@ for N = 1:NUME
     fprintf(IOUT, '%10d      %10d    %10d    %10d   %10d       %5d\n', N, I1, I2, I3, I4, MTYPE);
 
 %   Compute connectivity matrix
-    LM(1, N) = ID(1, I1);
-    LM(3, N) = ID(1, I2);
-    LM(5, N) = ID(1, I3);
-    LM(7, N) = ID(1, I4);
+    LM(1, N) = ID(3, I1);
+    LM(4, N) = ID(3, I2);
+    LM(7, N) = ID(3, I3);
+    LM(10, N) = ID(3, I4);
 
-    LM(2, N) = ID(2, I1);
-    LM(4, N) = ID(2, I2);
-    LM(6, N) = ID(2, I3);
-    LM(8, N) = ID(2, I4);
+    LM(2, N) = ID(1, I1);
+    LM(5, N) = ID(1, I2);
+    LM(8, N) = ID(1, I3);
+    LM(11, N) = ID(1, I4);
+
+    LM(3, N) = ID(2, I1);
+    LM(6, N) = ID(2, I2);
+    LM(9, N) = ID(2, I3);
+    LM(12, N) = ID(2, I4);
 
 %   Updata column heights and bandwidth
     ColHt(LM(:, N))

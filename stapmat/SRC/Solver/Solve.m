@@ -40,7 +40,7 @@ sdata.STRESS = zeros(NEQ, NLCASE, 'double');
 if (MODEX == 1) LDLTFactor();
 % if (MODEX == 1) SPSTIFF = Stiff2Sparse();
 else SPSTIFF = Stiff2Sparse();
-    SPMASS = Mass2Sparse();
+%     SPMASS = Mass2Sparse();
 end
 
 % O = zeros(NEQ,NEQ);
@@ -156,7 +156,15 @@ for II = 1:NUMNP
     if (ID(1, II) ~= 0) D(1) = DIS(ID(1, II)); end
     if (ID(2, II) ~= 0) D(2) = DIS(ID(2, II)); end
     if (ID(3, II) ~= 0) D(3) = DIS(ID(3, II)); end
-    
+    NPAR1=cdata.NPAR(1);
+    thick=sdata.thick;
+    if (NPAR1==3)
+    z=thick/2; %上表面
+    u(1)=z*D(2);
+    u(2)=-z*D(3);
+    u(3)=D(1);
+    D(1)=u(1);D(2)=u(2);D(3)=u(3);
+    end
     fprintf(IOUT, ' %10d        %18.6e%18.6e%18.6e\n', II, D(1), D(2), D(3));
 end
 

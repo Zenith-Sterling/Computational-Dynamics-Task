@@ -51,8 +51,23 @@ for N = 1:NUME
     D_shear=k*E(MTYPE)/(2*(1+nu(MTYPE)))*[1 0;0 1]; %横向剪切矩阵Dshear
 %   compute the matrix B & K 
     K = zeros(12,12);
-    P = [XYZ(1, N) XYZ(2, N);XYZ(4, N) XYZ(5, N);
-        XYZ(7, N) XYZ(8, N);XYZ(10, N) XYZ(11, N)];   %四节点坐标
+      % 局部坐标系建立
+    r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
+    r2 = [XYZ(10,N)-XYZ(1,N);XYZ(11,N)-XYZ(2,N);XYZ(12,N)-XYZ(3,N)]; %节点1到节点4
+    r23 = [XYZ(7,N)-XYZ(4,N);XYZ(8,N)-XYZ(5,N);XYZ(9,N)-XYZ(6,N)]; %节点2到节点3
+    r3 = cross(r1,r2);
+    e1 = r1/norm(r1); %局部坐标系x轴
+    e3 = r3/norm(r3); %局部坐标系z轴
+    e2 = cross(e3,e1); %局部坐标系y轴
+    x2 = norm(r1); %局部坐标系下2点的x坐标
+    x3 = x2 + r23'*e1;
+    y3 = r23'*e2;
+    x4 = r2'*e1;
+    y4 = r2'*e2;
+
+    P = [0 0;x2 0;
+        x3 y3;x4 y4];   %四节点坐标
+
     s = [-sqrt(3)/3 sqrt(3)/3];
     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
     for i = 1:2
@@ -75,11 +90,22 @@ for N = 1:NUME
             B1_shear=B_shear+B1_shear;
         end
     end
+      % 转换矩阵
+    T = [e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1];e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1]];
+    T_total = blkdiag(T,T,T,T);
+    
+
     z=thick/2; %上表面
     eps_plane = z*B1_plane*d; 
     eps_shear = B1_shear*d;
-    sigma_plane = D_plane*eps_plane; %σx、σy、σxy
+    sigma_plane = D_plane*eps_plane; %σx、σy、τxy
     sigma_shear = D_shear*eps_shear; %τxz、τyz
+    S=[sigma_plane(1) sigma_plane(3) sigma_shear(1);
+        sigma_plane(3) sigma_plane(2) sigma_shear(2);
+        sigma_shear(1) sigma_shear(2) 0];
+    S1=T'*S*T;
+    sigma_plane=[S1(1,1) S1(2,2) S1(1,2)];
+    sigma_shear=[S1(3,1) S1(3,2)];
     
     fprintf(IOUT, ' %10d     %13.6e     %13.6e    %13.6e     %13.6e     %13.6e\n', N, sigma_plane(1), sigma_plane(2) ,sigma_plane(3), sigma_shear(1), sigma_shear(2));
 end

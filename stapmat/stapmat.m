@@ -20,7 +20,7 @@ cdata = ControlData;
 sdata = SolutionData;
 
 % Read InPut file
-fname = 'stap90_2.in';              % Specify the file name
+fname = 'shell_1221.dat';              % Specify the file name
 ReadFile(fname);
 
 % Write basic data of program 
@@ -52,6 +52,7 @@ addpath .\SRC\BasicData
 addpath .\SRC\Mechanics
 addpath .\SRC\Mechanics\Truss
 addpath .\SRC\Mechanics\Quad
+addpath .\SRC\Mechanics\Shell
 addpath .\SRC\Solver
 end
 
