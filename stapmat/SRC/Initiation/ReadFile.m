@@ -55,16 +55,19 @@ for i = 1:cdata.NUMNP
     ID(1, i) = int64(tmp(2));
     ID(2, i) = int64(tmp(3));
     ID(3, i) = int64(tmp(4));
-    X(i) = double(tmp(5));
-    Y(i) = double(tmp(6));
-    Z(i) = double(tmp(7));
+    ID(4, i) = int64(tmp(5));
+    ID(5, i) = int64(tmp(6));
+    ID(6, i) = int64(tmp(7));
+    X(i) = double(tmp(8));
+    Y(i) = double(tmp(9));
+    Z(i) = double(tmp(10));
 end
 sdata.ID = ID; sdata.X = X; sdata.Y = Y; sdata.Z = Z;
 %% Compute the number of equations
 sdata.IDOrigin = ID;
 NEQ = 0;
 for N=1:cdata.NUMNP
-    for I=1:3
+    for I=1:6
         if (ID(I,N) == 0)
             NEQ = NEQ + 1;
             ID(I,N) = NEQ;

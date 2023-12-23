@@ -119,20 +119,33 @@ for N = 1:NUME
     fprintf(IOUT, '%10d      %10d    %10d    %10d   %10d       %5d\n', N, I1, I2, I3, I4, MTYPE);
 
 %   Compute connectivity matrix
-    LM(1, N) = ID(3, I1);
-    LM(4, N) = ID(3, I2);
-    LM(7, N) = ID(3, I3);
-    LM(10, N) = ID(3, I4);
+    LM(1, N) = ID(1, I1);
+    LM(2, N) = ID(2, I1);
+    LM(3, N) = ID(3, I1);
+    LM(4, N) = ID(4, I1);
+    LM(5, N) = ID(5, I1);
+    LM(6, N) = ID(6, I1);
 
-    LM(2, N) = ID(1, I1);
-    LM(5, N) = ID(1, I2);
-    LM(8, N) = ID(1, I3);
-    LM(11, N) = ID(1, I4);
+    LM(7, N) = ID(1, I2);
+    LM(8, N) = ID(2, I2);
+    LM(9, N) = ID(3, I2);
+    LM(10, N) = ID(4, I2);
+    LM(11, N) = ID(5, I2);
+    LM(12, N) = ID(6, I2);
 
-    LM(3, N) = ID(2, I1);
-    LM(6, N) = ID(2, I2);
-    LM(9, N) = ID(2, I3);
-    LM(12, N) = ID(2, I4);
+    LM(13, N) = ID(1, I3);
+    LM(14, N) = ID(2, I3);
+    LM(15, N) = ID(3, I3);
+    LM(16, N) = ID(4, I3);
+    LM(17, N) = ID(5, I3);
+    LM(18, N) = ID(6, I3);
+
+    LM(19, N) = ID(1, I4);
+    LM(20, N) = ID(2, I4);
+    LM(21, N) = ID(3, I4);
+    LM(22, N) = ID(4, I4);
+    LM(23, N) = ID(5, I4);
+    LM(24, N) = ID(6, I4);
 
 %   Updata column heights and bandwidth
     ColHt(LM(:, N))

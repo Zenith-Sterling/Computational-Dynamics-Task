@@ -55,7 +55,7 @@ end
 function InitShell()
 global sdata;
 sdata.NNODE = 4;
-sdata.NDOF = 3;   %自由度：w，θx，θy
+sdata.NDOF = 6;   %自由度：u,v,w,θx,θy,θz
 
 end
 
@@ -75,10 +75,12 @@ for N = 1:NUME
     D_plane = E(MTYPE)/(1-nu(MTYPE)^2)*[1 nu(MTYPE) 0;nu(MTYPE) 1 0;0 0 (1-nu(MTYPE))/2]; %平面应力矩阵Dplane
     k=5/6; %剪切校正因子，通常为5/6
     D_shear=k*E(MTYPE)/(2*(1+nu(MTYPE)))*[1 0;0 1]; %横向剪切矩阵Dshear
+    D = E(MTYPE)/(1-nu(MTYPE)^2)*[1 nu(MTYPE) 0;nu(MTYPE) 1 0;0 0 (1-nu(MTYPE))/2];
 
 
 %   compute the matrix B & K 
     K = zeros(12,12);
+    K_uv = zeros(8,8);
 
     % 局部坐标系建立
     r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
@@ -108,6 +110,10 @@ for N = 1:NUME
             B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
                        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
                        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
+            B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
+                0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
+                N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
+            K_uv = K_uv+B_uv'*D*B_uv*detJ*thick;
             % 计算 B_plane 的刚度贡献
             K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
             % 组合两个刚度矩阵
@@ -125,10 +131,33 @@ for N = 1:NUME
     % 计算 B_shear 的刚度贡献
     K_shear = 4 * B_shear' * D_shear * B_shear*thick;
     K = K + K_shear*detJ;
+    
+
+    % 扩展维数
+    Q1 = [0 0 1 0 0 0;
+        0 0 0 1 0 0;
+        0 0 0 0 1 0];
+    Q2 = [1 0 0 0 0 0;
+        0 1 0 0 0 0];
+    Q1_total = blkdiag(Q1,Q1,Q1,Q1);
+    Q2_total = blkdiag(Q2,Q2,Q2,Q2);
 
     % 转换矩阵
-    T = [e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1];e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1]];
-    T_total = blkdiag(T,T,T,T);
+    T = [e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1];
+        e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];
+        e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1]];
+    T_total = blkdiag(T,T,T,T,T,T,T,T);
+
+
+    %板+膜的单元刚度阵
+    K = Q1_total'*K*Q1_total;
+    K = Q2_total'*K_uv*Q2_total + K;
+
+    % 罚函数法
+    alpha = 1000000;
+    B = [0 0 0 0 0 1];
+    B = [B,B,B,B];
+    K = K + alpha*(B'*B);
 
     %全局坐标系的单元刚度阵
     K = T_total'*K*T_total; % 转置应该是逆但不太确定

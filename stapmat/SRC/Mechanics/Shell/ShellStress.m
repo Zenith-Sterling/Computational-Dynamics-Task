@@ -13,7 +13,7 @@
 %*      Zhang Chen                                                 *
 %* *****************************************************************
 
-function QuadStress(NUM, NG)
+function ShellStress(NUM, NG)
 
 % Get global data
 global cdata;
@@ -72,27 +72,29 @@ for N = 1:NUME
     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
     for i = 1:2
         for j = 1:2        %循环遍历所有高斯积分点
-                N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+            N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
                         s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
             J = N_st*P;              %计算雅可比矩阵J
-            detJ = det(J);           % 雅可比行列式
             N_xy = J\N_st;           %计算局部到全局坐标的映射
             B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
                        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
                        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
-            N1 = 0.25*(1+s(i))*(1+t(j));
-            N2 = 0.25*(1-s(i))*(1+t(j));
-            N3 = 0.25*(1-s(i))*(1-t(j));
-            N4 = 0.25*(1+s(i))*(1-t(j));
-            B_shear = [N_xy(2,1) -N1 0  N_xy(2,2) -N2 0  N_xy(2,3) -N3 0  N_xy(2,4) -N4 0;
-                       N_xy(1,1) 0   N1 N_xy(1,2) 0   N2 N_xy(1,3) 0   N3 N_xy(1,4) 0   N4];
-            B1_plane=B_plane+B1_plane;
-            B1_shear=B_shear+B1_shear;
+            B1_plane=0.25*B_plane+B1_plane;
         end
     end
+    % 单点高斯积分
+    N_st = 0.25*[1 -1 -1 1;
+        1 1 -1 -1];         %形函数的导数
+    J = N_st*P;              %计算雅可比矩阵J
+    N_xy = J\N_st;           %计算局部到全局坐标的映射
+    B1_shear = [N_xy(2,1) -0.25 0  N_xy(2,2) -0.25 0  N_xy(2,3) -0.25 0  N_xy(2,4) -0.25 0;
+                       N_xy(1,1) 0 0.25 N_xy(1,2) 0 0.25 N_xy(1,3) 0 0.25 N_xy(1,4) 0 0.25];
+
       % 转换矩阵
-    T = [e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1];e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1]];
-    T_total = blkdiag(T,T,T,T);
+    T = [e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1];
+        e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];
+        e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1]];
+%     T_total = blkdiag(T,T,T,T);
     
 
     z=thick/2; %上表面
