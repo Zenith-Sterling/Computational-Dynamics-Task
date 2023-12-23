@@ -98,28 +98,46 @@ for N = 1:NUME
 
     P = [0 0;x2 0;
         x3 y3;x4 y4];   %四节点坐标
-    s = [-sqrt(3)/3 sqrt(3)/3];
-    t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
-    for i = 1:2
-        for j = 1:2        %循环遍历所有高斯积分点
-            N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
-                        s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
-            J = N_st*P;              %计算雅可比矩阵J
-            detJ = det(J);           % 雅可比行列式
-            N_xy = J\N_st;           %计算局部到全局坐标的映射
-            B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
-                       0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
-                       0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
-            B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
-                0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
-                N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
-            K_uv = K_uv+B_uv'*D*B_uv*detJ*thick;
-            % 计算 B_plane 的刚度贡献
-            K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
-            % 组合两个刚度矩阵
-            K = K + K_plane*detJ;
-        end
-    end
+%     s = [-sqrt(3)/3 sqrt(3)/3];
+%     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
+%     for i = 1:2
+%         for j = 1:2        %循环遍历所有高斯积分点
+%             N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+%                         s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
+%             J = N_st*P;              %计算雅可比矩阵J
+%             detJ = det(J);           % 雅可比行列式
+%             N_xy = J\N_st;           %计算局部到全局坐标的映射
+%             B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
+%                        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
+%                        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
+%             B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
+%                 0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
+%                 N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
+%             K_uv = K_uv+B_uv'*D*B_uv*detJ*thick;
+%             % 计算 B_plane 的刚度贡献
+%             K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
+%             % 组合两个刚度矩阵
+%             K = K + K_plane*detJ;
+%         end
+%     end
+
+    N_st = 0.25*[1 -1 -1 1;
+        1 1 -1 -1];         %形函数的导数
+    J = N_st*P;              %计算雅可比矩阵J
+    detJ = det(J);           % 雅可比行列式
+    N_xy = J\N_st;           %计算局部到全局坐标的映射
+    B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
+        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
+        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
+    B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
+        0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
+        N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
+    K_uv = K_uv+4*B_uv'*D*B_uv*detJ*thick;
+    % 计算 B_plane 的刚度贡献
+    K_plane = 4*B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
+    % 组合两个刚度矩阵
+    K = K + K_plane*detJ;
+
     % 单点高斯积分
     N_st = 0.25*[1 -1 -1 1;
         1 1 -1 -1];         %形函数的导数
