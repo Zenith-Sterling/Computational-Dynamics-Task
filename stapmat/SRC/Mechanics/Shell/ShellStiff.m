@@ -127,6 +127,8 @@ for N = 1:NUME
 % 质量阵
     s = [-sqrt(3)/3 sqrt(3)/3];
     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
+    M_wtheta = zeros(12,12);
+    M_uv = zeros(8,8);
     for i = 1:2
         for j = 1:2        %循环遍历所有高斯积分点
             N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
