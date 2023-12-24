@@ -67,7 +67,7 @@ K = zeros(12, 12, 'double');
 sdata.STIFF = zeros(sdata.NWK, 1, 'double');
 
 NUME = sdata.NUME; MATP = sdata.MATP; XYZ = sdata.XYZ; 
-E = sdata.E; nu = sdata.nu; LM = sdata.LM; thick=sdata.thick;%厚度
+E = sdata.E; nu = sdata.nu; rho=sdata.rho; LM = sdata.LM; thick=sdata.thick;%厚度
 for N = 1:NUME
     MTYPE = MATP(N);
     
@@ -100,36 +100,10 @@ for N = 1:NUME
         x3 y3;x4 y4];   %四节点坐标
 
 % 平面+壳平面：四点高斯
-%     s = [-sqrt(3)/3 sqrt(3)/3];
-%     t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
-%     for i = 1:2
-%         for j = 1:2        %循环遍历所有高斯积分点
-%             N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
-%                         s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
-%             J = N_st*P;              %计算雅可比矩阵J
-%             detJ = det(J);           % 雅可比行列式
-%             N_xy = J\N_st;           %计算局部到全局坐标的映射
-%             B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
-%                        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
-%                        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
-%             B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
-%                 0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
-%                 N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
-%             K_uv = K_uv+B_uv'*D*B_uv*detJ*thick;
-%             % 计算 B_plane 的刚度贡献
-%             K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
-%             % 组合两个刚度矩阵
-%             K = K + K_plane*detJ;
-%         end
-%     end
-
-
-% 平面+壳平面：九点高斯
-    s = [-sqrt(3/5) 0 sqrt(3/5)];
-    t = [-sqrt(3/5) 0 sqrt(3/5)];   %高斯积分点
-    w = [5/9 8/9 5/9];
-    for i = 1:3
-        for j = 1:3        %循环遍历所有高斯积分点
+    s = [-sqrt(3)/3 sqrt(3)/3];
+    t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
+    for i = 1:2
+        for j = 1:2        %循环遍历所有高斯积分点
             N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
                         s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
             J = N_st*P;              %计算雅可比矩阵J
@@ -141,13 +115,89 @@ for N = 1:NUME
             B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
                 0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
                 N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
-            K_uv = K_uv+B_uv'*D*B_uv*detJ*thick*w(i)*w(j);
+            K_uv = K_uv+B_uv'*D*B_uv*detJ*thick;
             % 计算 B_plane 的刚度贡献
-            K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8)*w(i)*w(j);
+            K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8);
             % 组合两个刚度矩阵
             K = K + K_plane*detJ;
         end
     end
+
+
+% 质量阵
+    s = [-sqrt(3)/3 sqrt(3)/3];
+    t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
+    for i = 1:2
+        for j = 1:2        %循环遍历所有高斯积分点
+            N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+                        s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
+            J = N_st*P;              %计算雅可比矩阵J
+            detJ = det(J);           % 雅可比行列式
+            N1 = 0.25*(1+s(i))*(1+t(i));
+            N2 = 0.25*(1-s(i))*(1+t(i));
+            N3 = 0.25*(1-s(i))*(1-t(i));
+            N4 = 0.25*(1+s(i))*(1-t(i));
+            N_uv = [N1 0 N2 0 N3 0 N4 0;
+                0 N1 0 N2 0 N3 0 N4];
+            N_wtheta = [N1 0 0 N2 0 0 N3 0 0 N4 0 0;
+                0 N1 0 0 N2 0 0 N3 0 0 N4 0;
+                0 0 N1 0 0 N2 0 0 N3 0 0 N4];
+            I_uv = [rho(MTYPE)*thick 0;
+                0 rho(MTYPE)*thick];
+            I_wtheta = [rho(MTYPE)*thick 0 0;
+                0 rho(MTYPE)*thick^3/12 0;
+                0 0 rho(MTYPE)*thick^3/12];
+            M_uv = M_uv + N_uv'*I_uv*N_uv*detJ;
+            M_wtheta = M_wtheta + N_wtheta'*I_wtheta*N_wtheta*detJ;
+        end
+    end
+
+
+    % 扩展维数
+    Q1 = [0 0 1 0 0 0;
+        0 0 0 1 0 0;
+        0 0 0 0 1 0];
+    Q2 = [1 0 0 0 0 0;
+        0 1 0 0 0 0];
+    Q1_total = blkdiag(Q1,Q1,Q1,Q1);
+    Q2_total = blkdiag(Q2,Q2,Q2,Q2);
+
+
+    %板+膜的单元质量阵
+    M1 = Q1_total'*M_wtheta*Q1_total;
+    M1 = Q2_total'*M_uv*Q2_total + M1;
+
+    % 罚函数法
+    alpha = 1000000;
+    B = [0 0 0 0 0 1];
+    B1 = [B,B,B,B];
+    M1 = M1 + alpha*(B1'*B1);
+
+
+% 平面+壳平面：九点高斯
+%     s = [-sqrt(3/5) 0 sqrt(3/5)];
+%     t = [-sqrt(3/5) 0 sqrt(3/5)];   %高斯积分点
+%     w = [5/9 8/9 5/9];
+%     for i = 1:3
+%         for j = 1:3        %循环遍历所有高斯积分点
+%             N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+%                         s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
+%             J = N_st*P;              %计算雅可比矩阵J
+%             detJ = det(J);           % 雅可比行列式
+%             N_xy = J\N_st;           %计算局部到全局坐标的映射
+%             B_plane = [0  0         N_xy(1,1) 0 0          N_xy(1,2) 0 0          N_xy(1,3) 0 0          N_xy(1,4);
+%                        0 -N_xy(2,1) 0         0 -N_xy(2,2) 0         0 -N_xy(2,3) 0         0 -N_xy(2,4) 0;
+%                        0 -N_xy(1,1) N_xy(2,1) 0 -N_xy(1,2) N_xy(2,2) 0 -N_xy(1,3) N_xy(2,3) 0 -N_xy(1,4) N_xy(2,4)];
+%             B_uv = [N_xy(1,1) 0 N_xy(1,2) 0 N_xy(1,3) 0 N_xy(1,4) 0;
+%                 0 N_xy(2,1) 0 N_xy(2,2) 0 N_xy(2,3) 0 N_xy(2,4);
+%                 N_xy(2,1) N_xy(1,1) N_xy(2,2) N_xy(1,2) N_xy(2,3) N_xy(1,3) N_xy(2,4) N_xy(1,4)];
+%             K_uv = K_uv+B_uv'*D*B_uv*detJ*thick*w(i)*w(j);
+%             % 计算 B_plane 的刚度贡献
+%             K_plane = B_plane' * D_plane * B_plane*2*1/3*(thick^3/8)*w(i)*w(j);
+%             % 组合两个刚度矩阵
+%             K = K + K_plane*detJ;
+%         end
+%     end
 
 
 
@@ -243,7 +293,7 @@ for N = 1:NUME
 %     % 组合两个刚度矩阵
 %     K = K + K_plane*detJ;
 
-
+    
 
 
     % 单点高斯积分
