@@ -87,6 +87,7 @@ R = sdata.R;
 for N = 1:cdata.NLCASE
     tmp = str2num(fgetl(IIN));
     cdata.LL = int64(tmp(1)); cdata.NLOAD = int64(tmp(2));
+    LL = cdata.LL;
     NLOAD = cdata.NLOAD;
 %   Init load data
     sdata.NOD = zeros(NLOAD, 1, 'int64');
@@ -95,18 +96,32 @@ for N = 1:cdata.NLCASE
     NOD = sdata.NOD; IDIRN = sdata.IDIRN; FLOAD = sdata.FLOAD;
     
 %   Read load data
-    for I = 1:NLOAD
-        tmp = str2num(fgetl(IIN));
-        NOD(I) = int64(tmp(1));
-        IDIRN(I) = int64(tmp(2));
-        FLOAD(I) = double(tmp(3));
-    end
-    if (cdata.MODEX == 0) return; end
-    
-%   Compute load vector
-    for L = 1:NLOAD
-        II = ID(IDIRN(L), NOD(L));
-        if (II > 0) R(II, N) = R(II, N) + FLOAD(L); end
+    if LL ==1
+        for I = 1:NLOAD
+            tmp = str2num(fgetl(IIN));
+            NOD(I) = int64(tmp(1));
+            IDIRN(I) = int64(tmp(2));
+            FLOAD(I) = double(tmp(3));
+        end
+        if (cdata.MODEX == 0) return; end
+        
+    %   Compute load vector
+        for L = 1:NLOAD
+            II = ID(IDIRN(L), NOD(L));
+            if (II > 0) R(II, N) = R(II, N) + FLOAD(L); end
+        end
+    elseif LL ==2
+        for I = 1:NLOAD
+            tmp = str2num(fgetl(IIN));
+            NOD(I) = int64(tmp(1));
+            IDIRN(I) = int64(tmp(2));
+            FLOAD(I) = double(tmp(3));
+        end
+    %   Compute load vector
+        for L = 1:NLOAD
+            II = ID(IDIRN(L), NOD(L));
+            if (II > 0) R(II, N) = R(II, N) + FLOAD(L); end
+        end
     end
     sdata.NOD = NOD; sdata.IDIRN = IDIRN; sdata.FLOAD = FLOAD; sdata.R = R;
 end

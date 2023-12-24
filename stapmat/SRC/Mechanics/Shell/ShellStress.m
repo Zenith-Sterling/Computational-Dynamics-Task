@@ -33,15 +33,15 @@ for N = 1:NUME
     MTYPE = MATP(N);
    
 %   displacement
-    for i = 1:12
+    for i = 1:24
         if LM(i, N) ~= 0
-            u(i) = U(LM(i, N));
+            u(1,i) = U(LM(i, N));
         else
-            u(i) = 0;
+            u(1,i) = 0;
         end
     end
    
-    d = [u(1);u(2);u(3);u(4);u(5);u(6);u(7);u(8);u(9);u(10);u(11);u(12)];
+    
     
     B1_plane=0;
     B1_shear=0;
@@ -96,6 +96,20 @@ for N = 1:NUME
         e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1]];
 %     T_total = blkdiag(T,T,T,T);
     
+    d = diag(T,T,T,T,T,T,T,T)*u;
+    Q1 = [0 0 1 0 0 0;
+        0 0 0 1 0 0;
+        0 0 0 0 1 0];
+    Q2 = [1 0 0 0 0 0;
+        0 1 0 0 0 0];
+    d1 = blkdiag(Q1,Q1,Q1,Q1)*d;
+    d2 = blkdiag(Q2,Q2,Q2,Q2)*d;
+
+    z=-thick/2; %上表面
+    eps_plane = B_uv*d2 + z*B_plane*d1;
+    eps_shear = B1_shear*d1;
+
+
 
     z=thick/2; %上表面
     eps_plane = z*B1_plane*d; 
