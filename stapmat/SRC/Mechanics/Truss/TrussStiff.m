@@ -83,6 +83,7 @@ for N = 1:NUME
     
     XX = E(MTYPE) * AREA(MTYPE) * XL;
     
+ 
     ST(1) = DX / XL2;
     ST(2) = DY / XL2;
     ST(3) = DZ / XL2;
