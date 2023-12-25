@@ -33,6 +33,7 @@ Addres();
 
 % Data check Or Solve
 global cdata;
+global sdata;
 if (cdata.MODEX == 0) 
     cdata.TIM(3,:) = clock;
     cdata.TIM(4,:) = clock;
@@ -44,6 +45,11 @@ end
 Assemble();
 
 AssembleMass();
+
+if sdata.f(1,1) ~= 0
+    AssembleR();
+end
+
 
 end
 
@@ -293,5 +299,75 @@ cdata.TIM(3, :) = clock;
 
 end
 
+
+function AssembleR()
+global sdata;
+global cdata;
+
+f = sdata.f;
+[n,~] = size(f);
+XYZ = sdata.XYZ; 
+LM = sdata.LM; thick=sdata.thick;%厚度
+
+for k = 1:n
+    for N = f(1):f(3):f(2)
+        % 局部坐标系建立
+        r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
+        r2 = [XYZ(10,N)-XYZ(1,N);XYZ(11,N)-XYZ(2,N);XYZ(12,N)-XYZ(3,N)]; %节点1到节点4
+        r23 = [XYZ(7,N)-XYZ(4,N);XYZ(8,N)-XYZ(5,N);XYZ(9,N)-XYZ(6,N)]; %节点2到节点3
+        r3 = cross(r1,r2);
+        e1 = r1/norm(r1); %局部坐标系x轴
+        e3 = r3/norm(r3); %局部坐标系z轴
+        e2 = cross(e3,e1); %局部坐标系y轴
+        x2 = norm(r1); %局部坐标系下2点的x坐标
+        x3 = x2 + r23'*e1;
+        y3 = r23'*e2;
+        x4 = r2'*e1;
+        y4 = r2'*e2;
+        %四节点坐标
+        P = [0 0;x2 0;
+            x3 y3;x4 y4];
+        % 转换矩阵
+        T = [e1'*[1;0;0] e1'*[0;1;0] e1'*[0;0;1];
+            e2'*[1;0;0] e2'*[0;1;0] e2'*[0;0;1];
+            e3'*[1;0;0] e3'*[0;1;0] e3'*[0;0;1]];
+        g = blkdiag(T,T)*[f(k,4);f(k,5);f(k,6);f(k,7);f(k,8);f(k,9)]; %单元局部坐标系内体积力
+        
+        % 单元内载荷力r
+        r = zeros(24,1);
+        s = [-sqrt(3)/3 sqrt(3)/3];
+        t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
+        for i = 1:2
+            for j = 1:2        %循环遍历所有高斯积分点
+                N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+                        s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
+                J = N_st*P;              %计算雅可比矩阵J
+                detJ = det(J);           % 雅可比行列式
+                N1 = 0.25*(1+s(i))*(1+t(j));
+                N2 = 0.25*(1-s(i))*(1+t(j));
+                N3 = 0.25*(1-s(i))*(1-t(j));
+                N4 = 0.25*(1+s(i))*(1-t(j));        
+                NT = [diag([N1,N1,N1,N1,N1,N1]),diag([N2,N2,N2,N2,N2,N2]),diag([N3,N3,N3,N3,N3,N3]),diag([N4,N4,N4,N4,N4,N4])];
+                r = r + NT'*g*thick*detJ;
+            end
+        end
+
+        R = blkdiag(T',T',T',T',T',T',T',T')*r;
+
+%   SRC/Mechanics/ADDBAN.m
+    AddR(R, LM(:, N));
+
+    end
+
+
+end
+  
+    
+
+
+% The third time stamp
+    cdata.TIM(3, :) = clock;
+
+end
 
 

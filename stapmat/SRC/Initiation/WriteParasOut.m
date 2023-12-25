@@ -65,9 +65,9 @@ for I = 1:1 %cdata.NLCASE
     fprintf(IOUT, '\n     LOAD CASE NUMBER . . . . . . . = %10d\n', LL);
     fprintf(IOUT, '     NUMBER OF CONCENTRATED LOADS . = %10d\n', NLOAD);
     
-    if (LL ~= I)
-        error(' *** ERROR *** LOAD CASES ARE NOT IN ORDER');
-    end
+%     if (LL ~= I)
+%         error(' *** ERROR *** LOAD CASES ARE NOT IN ORDER');
+%     end
     fprintf(IOUT, '\n\n        NODE       DIRECTION      LOAD\n');
     fprintf(IOUT, '       NUMBER                   MAGNITUDE\n');
     

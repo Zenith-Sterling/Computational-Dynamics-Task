@@ -20,7 +20,7 @@ cdata = ControlData;
 sdata = SolutionData;
 
 % Read InPut file
-fname = 'Shell1.dat';              % Specify the file name
+fname = 'shell3.dat';              % Specify the file name
 ReadFile(fname);
 
 % Write basic data of program 

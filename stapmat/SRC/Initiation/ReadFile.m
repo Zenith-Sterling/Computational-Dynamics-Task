@@ -105,6 +105,8 @@ sdata.NEQ = NEQ;
 NLCASE = cdata.NLCASE;
 sdata.R = zeros(NEQ, NLCASE, 'double');
 R = sdata.R;
+sdata.f = zeros(NLCASE,9, 'double');
+f = sdata.f;
 % Read data
 for N = 1:cdata.NLCASE
     tmp = str2num(fgetl(IIN));
@@ -113,9 +115,12 @@ for N = 1:cdata.NLCASE
     NLOAD = cdata.NLOAD;
 %   Init load data
     sdata.NOD = zeros(NLOAD, 1, 'int64');
+    sdata.ELE_1 = zeros(NLOAD, 1, 'int64');
+    sdata.ELE_2 = zeros(NLOAD, 1, 'int64');
     sdata.IDIRN = zeros(NLOAD, 1, 'int64');
     sdata.FLOAD = zeros(NLOAD, 1, 'double');
     NOD = sdata.NOD; IDIRN = sdata.IDIRN; FLOAD = sdata.FLOAD;
+    ELE_1 = sdata.ELE_1;ELE_2 = sdata.ELE_2;Step = zeros(NLOAD, 1, 'int64');
     
 %   Read load data
     if LL ==1
@@ -135,17 +140,19 @@ for N = 1:cdata.NLCASE
     elseif LL ==2
         for I = 1:NLOAD
             tmp = str2num(fgetl(IIN));
-            NOD(I) = int64(tmp(1));
-            IDIRN(I) = int64(tmp(2));
-            FLOAD(I) = double(tmp(3));
-        end
-    %   Compute load vector
-        for L = 1:NLOAD
-            II = ID(IDIRN(L), NOD(L));
-            if (II > 0) R(II, N) = R(II, N) + FLOAD(L); end
+            ELE_1(I) = int64(tmp(1));
+            ELE_2(I) = int64(tmp(2));
+            Step(I) = int64(tmp(3));
+            fx = double(tmp(4));
+            fy = double(tmp(5));
+            fz = double(tmp(6));
+            mx = double(tmp(7));
+            my = double(tmp(8));
+            mz = double(tmp(9));
+            f(I,:) = [ELE_1(I),ELE_2(I),Step(I),fx,fy,fz,mx,my,mz];
         end
     end
-    sdata.NOD = NOD; sdata.IDIRN = IDIRN; sdata.FLOAD = FLOAD; sdata.R = R;
+    sdata.NOD = NOD; sdata.IDIRN = IDIRN; sdata.FLOAD = FLOAD; sdata.R = R; sdata.f = f;
 end
 
 end

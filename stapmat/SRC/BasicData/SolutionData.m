@@ -31,6 +31,9 @@ classdef SolutionData
         Z;        % double, Z(NUMNP), Z coordinates
         R;        % double, R(NEQ), Load vector
         NOD;      % int, NOD(NLOAD), Node number to which this load is applied (1~NUMNP)
+        f;        % double, f(NLCASE,9)=[开始单元,结束单元,步长,x方向力值,y方向力值,z方向力值,x方向力矩,y方向力矩,z方向力矩], Load vector
+        ELE_1;      % int, ELE(NLOAD), Element number to which this load is applied (1~NUMEG)
+        ELE_2;
         IDIRN;    % int, IDIRN(NLOAD), Degree of freedom number for this load component
                   %                     1 : X-direction;
                   %                     2 : Y-direction;

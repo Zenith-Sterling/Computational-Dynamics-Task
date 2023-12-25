@@ -39,7 +39,7 @@ sdata.STRESS = zeros(NEQ, NLCASE, 'double');
 % MODEX = 2, Stiff2Sparse() - sdata.SPSTIFF \ Sdata.R(:, L)
 if (MODEX == 1) LDLTFactor();
 % if (MODEX == 1) SPSTIFF = Stiff2Sparse();
-elseif (MODEX == 5) SPSTIFF = Stiff2Sparse();
+elseif (MODEX == 4) SPSTIFF = Stiff2Sparse();
 else SPSTIFF = Stiff2Sparse();
     SPMASS = Mass2Sparse();
     det(SPSTIFF)
@@ -48,28 +48,34 @@ end
 
 % O = zeros(NEQ,NEQ);
 N = 1000;
-dt = 0.05;
+dt = 0.1;
+% C = zeros(NEQ,NEQ);
+% C = 0.1*SPMASS+0.1*SPSTIFF;
 
 cdata.TIM(4,:) = clock;
 
+
 % Solve 
-for L = 1:NLCASE
+for L = 1:1
 
 %   Solve the equilibrium equations to calculate the displacements
     if (MODEX == 1) ColSol(L);
     elseif (MODEX == 2) 
-        C = 0.5*SPMASS+0.5*SPSTIFF;
+%         C = 0.01*SPMASS+0.01*SPSTIFF;
         [dis,~,~] = Time_Integration(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
+        plot(1:N+1,dis(1,:))
         sdata.DIS(:,L) = dis(:,N+1);
     elseif (MODEX == 3) 
-        C = 0.5*SPMASS+0.5*SPSTIFF;
+%         C = 0.01*SPMASS+0.01*SPSTIFF;
         [dis,~,~] = alpha_order_4(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
+        plot(1:N+1,dis(1,:))
         sdata.DIS(:,L) = dis(:,N+1);
-    elseif (MODEX == 4) 
-        C = 0.5*SPMASS+0.5*SPSTIFF;
-        [dis,~,~] = modified_alpha4(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
-        sdata.DIS(:,L) = dis(:,N+1);
-    else sdata.DIS(:,L) = SPSTIFF \ sdata.R(:,L); end
+%     elseif (MODEX == 4) 
+%         C = 0.5*SPMASS+0.5*SPSTIFF;
+%         [dis,~,~] = modified_alpha4(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
+%         sdata.DIS(:,L) = dis(:,N+1);
+    else sdata.DIS(:,L) = SPSTIFF \ sdata.R(:,L); 
+    end
     
 %   Print displacements
     WriteDis(L);
