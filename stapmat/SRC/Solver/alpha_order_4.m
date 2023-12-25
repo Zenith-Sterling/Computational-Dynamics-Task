@@ -3,13 +3,15 @@ function [a,a_dot1,a_dot2] = alpha_order_4(N0,dt0,M,C,K,Q,a0,a0_dot)
 
 %% 参数设置
 % 广义alpha值
-alpha_f = 0.5;
-alpha_1 = 1.0;
-alpha_2 = 0.5;
-beta_1 = 0.25;
-beta_2 = 0.25;
-gama_1 = 0.5;
-gama_2 = 0.5;
+alpha_f = 0.6;
+alpha_1 = 1.5;
+alpha_2 = 1.1;
+
+gama_1 = alpha_1 - 0.5;
+gama_2 = 0.5 - alpha_f + alpha_2;
+
+beta_1 = (1+4*gama_1+4*gama_1^2)^2/16;
+beta_2 = (1+4*gama_2+4*gama_2^2)^2/16;
 % 最大迭代步数
 N = N0;
 % 时间步长
@@ -23,9 +25,12 @@ a_dot2 = zeros(n,N+1);
 a(:,1) = a0;
 a_dot1(:,1) = a0_dot;
 a_dot2(:,1) = M\(Q-C*a0_dot-K*a0);
-A_dot1 = M\(0-C*a_dot2(:,1)-K*a0_dot);
-A_dot2 = M\(0-C*A_dot1-K*a_dot2(:,1));
-A_dot3 = M\(0-C*A_dot2-K*A_dot1);
+A_dot1 = zeros(n,1);
+A_dot2 = zeros(n,1);
+A_dot3 = zeros(n,1);
+% A_dot1 = M\(0-C*a_dot2(:,1)-K*a0_dot);
+% A_dot2 = M\(0-C*A_dot1-K*a_dot2(:,1));
+% A_dot3 = M\(0-C*A_dot2-K*A_dot1);
 
 
 

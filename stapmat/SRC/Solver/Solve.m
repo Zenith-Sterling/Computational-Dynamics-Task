@@ -45,7 +45,7 @@ end
 
 % O = zeros(NEQ,NEQ);
 N = 1000;
-dt = 0.5;
+dt = 0.05;
 
 cdata.TIM(4,:) = clock;
 
@@ -68,7 +68,7 @@ for L = 1:NLCASE
     WriteDis(L);
     
 %   Calculation of stresses
-    GetStress(L);
+%     GetStress(L);
     
 end
 

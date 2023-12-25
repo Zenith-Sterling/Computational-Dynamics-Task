@@ -1,7 +1,9 @@
-%clc,clear
-%load DATA.mat
+%%
+% clc,clear
+% load Shell1.mat
+%%
 figure;
-trisurf(ELE, NODE(:, 1), NODE(:, 2), NODE(:, 3), DIS(:,3));
+trisurf(ELE, NODE(:, 1), NODE(:, 2), NODE(:, 3), DIS(:,1));
 % max(DIS(:,1))
 title('Displacement Field');
 xlabel('X');
