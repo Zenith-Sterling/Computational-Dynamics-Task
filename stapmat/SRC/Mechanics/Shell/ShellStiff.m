@@ -206,10 +206,83 @@ sdata.Mass1 = zeros(sdata.NWK, 1, 'double');
 sdata.Mass2 = zeros(sdata.NWK, 1, 'double');
 
 NUME = sdata.NUME; MATP = sdata.MATP; XYZ = sdata.XYZ; 
-thick = sdata.thick; rho=sdata.rho;LM = sdata.LM;
+E = sdata.E; nu = sdata.nu; rho=sdata.rho; LM = sdata.LM; thick=sdata.thick;%厚度
+for N = 1:NUME
+    MTYPE = MATP(N);
+   
+    % 局部坐标系建立
+    r1 = [XYZ(4,N)-XYZ(1,N);XYZ(5,N)-XYZ(2,N);XYZ(6,N)-XYZ(3,N)]; %节点1到节点2
+    r2 = [XYZ(10,N)-XYZ(1,N);XYZ(11,N)-XYZ(2,N);XYZ(12,N)-XYZ(3,N)]; %节点1到节点4
+    r23 = [XYZ(7,N)-XYZ(4,N);XYZ(8,N)-XYZ(5,N);XYZ(9,N)-XYZ(6,N)]; %节点2到节点3
+    r3 = cross(r1,r2);
+    e1 = r1/norm(r1); %局部坐标系x轴
+    e3 = r3/norm(r3); %局部坐标系z轴
+    e2 = cross(e3,e1); %局部坐标系y轴
+    x2 = norm(r1); %局部坐标系下2点的x坐标
+    x3 = x2 + r23'*e1;
+    y3 = r23'*e2;
+    x4 = r2'*e1;
+    y4 = r2'*e2;
+
+    P = [0 0;x2 0;
+        x3 y3;x4 y4];   %四节点坐标
+
+
+% 质量阵
+    s = [-sqrt(3)/3 sqrt(3)/3];
+    t = [-sqrt(3)/3 sqrt(3)/3];   %高斯积分点
+    M_wtheta = zeros(12,12);
+    M_uv = zeros(8,8);
+    for i = 1:2
+        for j = 1:2        %循环遍历所有高斯积分点
+            N_st = 0.25*[1+t(j) -1-t(j) -1+t(j) 1-t(j);
+                        s(i)+1 1-s(i) -1+s(i) -1-s(i)];         %形函数的导数
+            J = N_st*P;              %计算雅可比矩阵J
+            detJ = det(J);           % 雅可比行列式
+            N1 = 0.25*(1+s(i))*(1+t(i));
+            N2 = 0.25*(1-s(i))*(1+t(i));
+            N3 = 0.25*(1-s(i))*(1-t(i));
+            N4 = 0.25*(1+s(i))*(1-t(i));
+            N_uv = [N1 0 N2 0 N3 0 N4 0;
+                0 N1 0 N2 0 N3 0 N4];
+            N_wtheta = [N1 0 0 N2 0 0 N3 0 0 N4 0 0;
+                0 N1 0 0 N2 0 0 N3 0 0 N4 0;
+                0 0 N1 0 0 N2 0 0 N3 0 0 N4];
+            I_uv = [rho(MTYPE)*thick 0;
+                0 rho(MTYPE)*thick];
+            I_wtheta = [rho(MTYPE)*thick 0 0;
+                0 rho(MTYPE)*thick^3/12 0;
+                0 0 rho(MTYPE)*thick^3/12];
+            M_uv = M_uv + N_uv'*I_uv*N_uv*detJ;
+            M_wtheta = M_wtheta + N_wtheta'*I_wtheta*N_wtheta*detJ;
+        end
+    end
+
+
+    % 扩展维数
+    Q1 = [0 0 1 0 0 0;
+        0 0 0 1 0 0;
+        0 0 0 0 1 0];
+    Q2 = [1 0 0 0 0 0;
+        0 1 0 0 0 0];
+    Q1_total = blkdiag(Q1,Q1,Q1,Q1);
+    Q2_total = blkdiag(Q2,Q2,Q2,Q2);
+
+
+    %板+膜的单元质量阵
+    M2 = Q1_total'*M_wtheta*Q1_total;
+    M2 = Q2_total'*M_uv*Q2_total + M2;
+
+    % 罚函数法
+    alpha = 1000000;
+    B = [0 0 0 0 0 1];
+    B1 = [B,B,B,B];
+    M2 = M2 + alpha*(B1'*B1);
+
+
     
 %   SRC/Mechanics/ADDBAN.m
-    %AddM(M1,M2, LM(:, N));
+    AddM(M2, LM(:, N));
     
 end
 
