@@ -52,8 +52,8 @@ for k = 1:2
     K_1 = c_k*K+c_0*M+c_1*C;
     Q_1 = Q-alpha_f*K*a(:,k)+M*(c_0*a(:,k)+c_2*a_dot1(:,k)+c_3*a_dot2(:,k))+C*(c_1*a(:,k)+c_4*a_dot1(:,k)+c_5*a_dot2(:,k));
     a(:,k+1) = K_1\Q_1;
-    a_dot2(:,k+1) = (a(:,k+1)-a(:,k))/(beta*dt*dt)-a_dot1(:,k)/(beta*dt)-(0.5/beta-1)*a_dot2(:,k);
-    a_dot1(:,k+1) = gama*(a(:,k+1)-a(:,k))/(beta*dt)+(1-gama/beta)*a_dot1(:,k)+(1-0.5*gama/beta)*dt*a_dot2(:,k);
+    a_dot2(:,k+1) = (a(:,k+1)-a(:,k))/(beta0*dt*dt)-a_dot1(:,k)/(beta0*dt)-(0.5/beta0-1)*a_dot2(:,k);
+    a_dot1(:,k+1) = gama0*(a(:,k+1)-a(:,k))/(beta0*dt)+(1-gama0/beta0)*a_dot1(:,k)+(1-0.5*gama0/beta0)*dt*a_dot2(:,k);
 end
 
 A_dot1 = M\(0-C*a_dot2(:,2)-K*a_dot1(:,2));

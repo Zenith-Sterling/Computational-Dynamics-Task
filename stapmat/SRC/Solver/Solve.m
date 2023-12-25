@@ -39,8 +39,11 @@ sdata.STRESS = zeros(NEQ, NLCASE, 'double');
 % MODEX = 2, Stiff2Sparse() - sdata.SPSTIFF \ Sdata.R(:, L)
 if (MODEX == 1) LDLTFactor();
 % if (MODEX == 1) SPSTIFF = Stiff2Sparse();
+elseif (MODEX == 5) SPSTIFF = Stiff2Sparse();
 else SPSTIFF = Stiff2Sparse();
-%     SPMASS = Mass2Sparse();
+    SPMASS = Mass2Sparse();
+    det(SPSTIFF)
+    det(SPMASS)
 end
 
 % O = zeros(NEQ,NEQ);
@@ -61,6 +64,10 @@ for L = 1:NLCASE
     elseif (MODEX == 3) 
         C = 0.5*SPMASS+0.5*SPSTIFF;
         [dis,~,~] = alpha_order_4(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
+        sdata.DIS(:,L) = dis(:,N+1);
+    elseif (MODEX == 4) 
+        C = 0.5*SPMASS+0.5*SPSTIFF;
+        [dis,~,~] = modified_alpha4(N,dt,SPMASS,C,SPSTIFF,sdata.R(:,L),zeros(NEQ,1),zeros(NEQ,1));
         sdata.DIS(:,L) = dis(:,N+1);
     else sdata.DIS(:,L) = SPSTIFF \ sdata.R(:,L); end
     
@@ -111,7 +118,7 @@ end
 function SPMASS = Mass2Sparse()
 
 global sdata;
-A = sdata.Mass1; MAXA = sdata.MAXA; NEQ = sdata.NEQ; NWK = sdata.NWK;
+A = sdata.Mass2; MAXA = sdata.MAXA; NEQ = sdata.NEQ; NWK = sdata.NWK;
 IIndex = zeros(NWK*2-NEQ, 1);
 JIndex = IIndex;
 MASS = IIndex;

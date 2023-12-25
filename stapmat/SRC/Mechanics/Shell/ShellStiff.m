@@ -200,8 +200,8 @@ end
 function AssembleMass()
 global sdata;
 global cdata;
-M1 = zeros(12, 12, 'double');
-M2 = zeros(12, 12, 'double');
+M1 = zeros(24, 24, 'double');
+M2 = zeros(24, 24, 'double');
 sdata.Mass1 = zeros(sdata.NWK, 1, 'double');
 sdata.Mass2 = zeros(sdata.NWK, 1, 'double');
 
@@ -270,26 +270,28 @@ for N = 1:NUME
 
 
     %板+膜的单元质量阵
-    M2 = Q1_total'*M_wtheta*Q1_total;
-    M2 = Q2_total'*M_uv*Q2_total + M2;
+    M1 = Q1_total'*M_wtheta*Q1_total;
+    M1 = Q2_total'*M_uv*Q2_total + M1;
 
     % 罚函数法
-    alpha = 1000000;
+    alpha = 100000;
     B = [0 0 0 0 0 1];
     B1 = [B,B,B,B];
-    M2 = M2 + alpha*(B1'*B1);
+    M1 = M1 + alpha*(B1'*B1);
+    S = sum(M1,2);
+    M2 = diag(S);
 
 
     
 %   SRC/Mechanics/ADDBAN.m
-    AddM(M2, LM(:, N));
+    AddM(M1,M2, LM(:, N));
     
 end
 
-% % The third time stamp
-% cdata.TIM(3, :) = clock;
+% The third time stamp
+cdata.TIM(3, :) = clock;
 
-%end
+end
 
 
 
